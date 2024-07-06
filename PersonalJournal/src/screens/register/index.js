@@ -39,12 +39,16 @@ const Register = ({ addUser }) => {
   const navigation = useNavigation();
 
   const LoginAction = () => {
-    let endpoint = SCRIPTS.API_LOGIN;
-    
+    let endpoint = SCRIPTS.API_REGISTER;
+    const data = {
+      username: username,
+      password: password,
+    };
       NetInfo.fetch().then((state) => {
         if (state.isConnected) {
            SCRIPTS.callPost(endpoint, data, "")
             .then((response) => {
+              console.log('response', response)
             return response.data;
            })
            .then((responseJson) => {
