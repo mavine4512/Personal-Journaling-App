@@ -49,7 +49,7 @@ class Splash extends React.Component {
       //   );
       // } else {
         setTimeout(() => {
-          this._redirect("Login");
+          this._redirect("Login"); 
         }, 2000);
       // }
     } catch (error) {}

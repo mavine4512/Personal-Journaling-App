@@ -3,26 +3,14 @@ import "react-native-gesture-handler";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 
-import Splash from "./screens/splash";
-import Login from "./screens/login";
-import Register from "./screens/register";
-import Dashboard from "./screens/Dashboard";
-// import UserName from "./screens/register/userName";
-// import PhoneNumber from "./screens/register/PhoneNumber";
-// import County from "./screens/register/county";
-// import Password from "./screens/register/password";
-// import Privacy from "./Privacy";
-// import EventLists from "./screens/EventLists";
-// import Tabs from "../src/components/navigation/tabs";
-// import RegisterEvent from "../src/screens/registerEvent";
-// import TypeOfWaste from "./screens/TypeOfWaste";
-// import CollectionPoints from "./screens/CollectionPoints";
-// import Training from "./screens/Training";
-// import SolidWasteHeatMap from "./screens/SolidWasteHeatMap";
-// import RecycleWaste from "./screens/RecycleWaste";
-// import SelectedType from "./screens/TypeOfWaste/selectedType";
-// import BookWasteCollection from "./screens/BookWasteCollection";
-// import NameShame from "./screens/NameShame";
+import Splash from "./screens/Splash";
+import Login from "./screens/Login";
+import Register from "./screens/Register";
+import AddJournal from "./screens/AddJournal";
+import EditJournal from "./screens/EditJournal";
+import Summary from "./screens/Summary";
+import Settings from './screens/Settings';
+import Tabs from './components/navigation/tabs';
 
 const Stack = createStackNavigator();
 
@@ -39,6 +27,13 @@ class Main extends React.Component {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="Dashboard"
+            component={Tabs}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="Login"
             component={Login}
             options={{ headerShown: false }}
@@ -50,111 +45,35 @@ class Main extends React.Component {
               headerShown: false,
             }}
           />
-           <Stack.Screen
-            name="Dashboard"
-            component={Dashboard}
-            options={{
-              headerShown: false,
-            }}
-          />
-         {/* <Stack.Screen
-            name="PhoneNumber"
-            component={PhoneNumber}
+           
+         <Stack.Screen
+            name="AddJournal"
+            component={AddJournal}
             options={{
               headerShown: false,
             }}
           />
           <Stack.Screen
-            name="County"
-            component={County}
+            name="EditJournal"
+            component={EditJournal}
             options={{
               headerShown: false,
             }}
           />
-          <Stack.Screen
-            name="Password"
-            component={Password}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Privacy"
-            component={Privacy}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Dashboard"
-            component={Tabs}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="RegisterEvent"
-            component={RegisterEvent}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="EventLists"
-            component={EventLists}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="TypeOfWaste"
-            component={TypeOfWaste}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="CollectionPoints"
-            component={CollectionPoints}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Training"
-            component={Training}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="SolidWasteHeatMap"
-            component={SolidWasteHeatMap}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="RecycleWaste"
-            component={RecycleWaste}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="SelectedType"
-            component={SelectedType}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name=" BookWasteCollection"
-            component={BookWasteCollection}
+          {/* <Stack.Screen
+            name="Summary"
+            component={Summary}
             options={{
               headerShown: false,
             }}
           /> */}
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     );

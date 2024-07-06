@@ -1,14 +1,11 @@
 import React from "react";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import Icon from "react-native-vector-icons/Ionicons";
-import Dashboard from "../../../src/screens/dashboard";
-import NameShame from "../../screens/NameShame";
+import Dashboard from "../../screens/Dashboard";
+import Summary from "../../screens/Summary";
 import { white, primary, Grey } from "../../utilities/color";
 import { moderateScale } from "react-native-size-matters";
-import Profile from "../../screens/Profile";
-import Settings from "../../screens/settings";
-import Notification from "../../screens/Notification";
+import Settings from "../../screens/Settings";
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -17,7 +14,7 @@ function Tabs() {
     <Tab.Navigator
       initialRouteName="Feed"
       activeColor={primary}
-      barStyle={{ backgroundColor: white }}
+      barStyle={{ backgroundColor: '#277FEE'}}
     >
       <Tab.Screen
         name="Dashboard"
@@ -34,24 +31,10 @@ function Tabs() {
         }}
       />
       <Tab.Screen
-        name="NameShame"
-        component={NameShame}
+        name="Summary"
+        component={Summary}
         options={{
-          tabBarLabel: "NameShame",
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="emoticon-sad"
-              color={color}
-              size={moderateScale(20)}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notification"
-        component={Notification}
-        options={{
-          tabBarLabel: "Notification",
+          tabBarLabel: "Journal Summary",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="bell"
@@ -65,17 +48,7 @@ function Tabs() {
         name="Settings"
         component={Settings}
         options={{
-          tabBarLabel: "settings",
-          tabBarIcon: ({ color }) => (
-            <Icon name="settings" color={color} size={moderateScale(18)} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          tabBarLabel: "Profile",
+          tabBarLabel: "Settings",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="account"
