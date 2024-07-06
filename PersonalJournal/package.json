@@ -15,6 +15,7 @@
   "dependencies": {
     "@killerwink/lottie-react-native-color": "killerwink/lottie-react-native-color",
     "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-community/netinfo": "^11.3.2",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.4.0",

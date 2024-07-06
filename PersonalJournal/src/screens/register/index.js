@@ -25,66 +25,70 @@ import { moderateScale } from "react-native-size-matters";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { addUser } from "../../redux/actions";
+import NetInfo from "@react-native-community/netinfo";
 import { useNavigation, CommonActions } from "@react-navigation/native";
+const SCRIPTS = require("../../utilities/network");
 
 
 const Register = ({ addUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [Loading , setLoading]  = useState(false);
   // const { login } = useContext(AuthContext);
 
   const navigation = useNavigation();
 
-  // const LoginAction = () => {
-  //   fetch("https://dummyjson.com/auth/login", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       username: username,
-  //       password: password,
-  //       // expiresInMins: 60, // optional
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((res) => {
-  //       console.log("res", res);
-  //       // navigation.navigate("Home", { screen: "Home" });
-  //       saveUser(res);
-  //       addUser(res);
-  //       setPassword("");
-  //       setUsername("");
-  //     })
-  //     .catch((error) => {
-  //       console.log("error", error);
-  //     });
-  // };
+  const LoginAction = () => {
+    let endpoint = SCRIPTS.API_LOGIN;
+    
+      NetInfo.fetch().then((state) => {
+        if (state.isConnected) {
+           SCRIPTS.callPost(endpoint, data, "")
+            .then((response) => {
+            return response.data;
+           })
+           .then((responseJson) => {
+             navigation.navigate("Login", { screen: "Login" });
+              saveUser(responseJson);
+              addUser(responseJson);
+              setPassword("");
+              setUsername("");
+         }).catch((error) => {
+            console.log("NetworkError", error);
+         });
+        } else {
+          setLoading(false);
+          networkmodal._show();
+      }
+      })
+  };
 
-  // const saveUser = async (user) => {
-  //   try {
-  //     // storeLocalStorage("user", user);
-  //     console.log("User data saved successfully!");
-  //   } catch (error) {
-  //     console.log("Error saving user data:", error);
-  //   }
-  // };
+  const saveUser = async (user) => {
+    try {
+      // storeLocalStorage("user", user);
+      console.log("User data saved successfully!");
+    } catch (error) {
+      console.log("Error saving user data:", error);
+    }
+  };
 
-  // const handleLogin = () => {
-  //   // Check if email is valid
-  //   if (username === "") {
-  //     Alert.alert("Invalid user name", "Please enter a valid user name.");
-  //     return;
-  //   }
+  const handleLogin = () => {
+    // Check if email is valid
+    if (username === "") {
+      Alert.alert("Invalid user name", "Please enter a valid user name.");
+      return;
+    }
 
-  //   // Check if password is valid
-  //   if (!password || password.length < 6) {
-  //     Alert.alert(
-  //       "Invalid Password",
-  //       "Password must be at least 6 characters long."
-  //     );
-  //     return;
-  //   }
-  //   LoginAction();
-  // };
+    // Check if password is valid
+    if (!password || password.length < 6) {
+      Alert.alert(
+        "Invalid Password",
+        "Password must be at least 6 characters long."
+      );
+      return;
+    }
+    LoginAction();
+  };
 
   return (
     <SafeAreaView style={styles.loginContainer}>
@@ -119,7 +123,7 @@ const Register = ({ addUser }) => {
                 style={styles.icons}
               />
               <TextInput
-                // onChangeText={(text) => setUsername(text)}
+                onChangeText={(text) => setUsername(text)}
                 value={username}
                 style={styles.TextItems}
                 placeholder="Enter your user name"
@@ -135,7 +139,7 @@ const Register = ({ addUser }) => {
                 style={styles.icons}
               />
               <TextInput
-                // onChangeText={(text) => setPassword(text)}
+                onChangeText={(text) => setPassword(text)}
                 value={password}
                 secureTextEntry={true}
                 style={styles.TextItems}
@@ -145,7 +149,7 @@ const Register = ({ addUser }) => {
             </View>
             <View style={{ marginTop: moderateScale(30) }}>
               <Button title="Register" 
-              // onPress={handleLogin} 
+              onPress={handleLogin} 
               />
             </View>
             <View style={styles.viewContainerText}>
