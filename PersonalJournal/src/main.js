@@ -6,9 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import Splash from "./screens/Splash";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
-import AddJournal from "./screens/AddJournal";
 import EditJournal from "./screens/EditJournal";
-import Summary from "./screens/Summary";
 import Settings from './screens/Settings';
 import Tabs from './components/navigation/tabs';
 
@@ -46,13 +44,6 @@ class Main extends React.Component {
             }}
           />
            
-         <Stack.Screen
-            name="AddJournal"
-            component={AddJournal}
-            options={{
-              headerShown: false,
-            }}
-          />
           <Stack.Screen
             name="EditJournal"
             component={EditJournal}
@@ -60,13 +51,6 @@ class Main extends React.Component {
               headerShown: false,
             }}
           />
-          {/* <Stack.Screen
-            name="Summary"
-            component={Summary}
-            options={{
-              headerShown: false,
-            }}
-          /> */}
           <Stack.Screen
             name="Settings"
             component={Settings}
