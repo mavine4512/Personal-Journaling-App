@@ -26,7 +26,7 @@ app.post('/',(req, res) => {
     console.log(req.body);
     res.send('Journal Backend server started');
 })
-
+//create
 app.post('/journal', (req, res) => {
   const { title, content, category } = req.body;
   
@@ -44,10 +44,24 @@ app.post('/journal', (req, res) => {
   });
 });
 
-// Endpoint to delete a journal entry
-app.delete('/journal/:id', (req, res) => {
-  const { id } = req.params;
+// Endpoint to get all journal entries
+app.get('/journals/list', (req, res) => {
+  const query = 'SELECT * FROM journal_list';
 
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching data:', err);
+      res.status(500).send('Error fetching data');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Endpoint to delete a journal entry
+app.delete('/delete/journal/:id', (req, res) => {
+  // http://127.0.0.1:3000/delete/journal/1 (call this in frontend)
+  const { id } = req.params;
   const query = 'DELETE FROM journal_list WHERE id = ?';
   
   db.query(query, [id], (err, result) => {
@@ -66,7 +80,8 @@ app.delete('/journal/:id', (req, res) => {
 });
 
 // Endpoint to update a journal entry
-app.put('/journal/:id', (req, res) => {
+app.put('/update/journal/:id', (req, res) => {
+  // http://127.0.0.1:3000/update/journal/1 (call this in frontend)
   const { id } = req.params;
   const { title, content, category, cdate } = req.body;
 
@@ -88,24 +103,38 @@ app.put('/journal/:id', (req, res) => {
   });
 });
 
-//Post API for register
+// POST API for register
 app.post("/register", (req, res) => {
-  const sql =
-    "INSERT INTO login (`username`, `password`) VALUES (?)";
-  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-    if (err) return res.json({ error: "Error hashing password" });
+  const { username, password } = req.body;
 
-    const values = [
-      req.body.username,
-      hash,
-    ];
+  // Check if the username already exists
+  const checkUserSql = "SELECT * FROM login WHERE username = ?";
+  db.query(checkUserSql, [username], (err, result) => {
+    if (err) return res.json({ error: "Database error during username check" });
 
-    db.query(sql, [values], (err, result) => {
-      if (err) return res.json({ Error: "Inserting data Error in server" });
-      return res.json({ status: "Success" });
+    if (result.length > 0) {
+      // Username already exists
+      return res.json({ error: "User has already been registered. Try another username." });
+    }
+
+    // If username does not exist, proceed with registration
+    const insertUserSql = "INSERT INTO login (`username`, `password`) VALUES (?)";
+    bcrypt.hash(password.toString(), salt, (err, hash) => {
+      if (err) return res.json({ error: "Error hashing password" });
+
+      const values = [
+        username,
+        hash,
+      ];
+
+      db.query(insertUserSql, [values], (err, result) => {
+        if (err) return res.json({ error: "Inserting data error in server" });
+        return res.json({ status: "Success" });
+      });
     });
   });
 });
+
 
 //Post API for login
 app.post("/login", (req, res) => {
@@ -126,9 +155,7 @@ app.post("/login", (req, res) => {
             });
             res.cookie("token", token);
             return res.json({
-              token,
-              data: { username, ...data[0] },
-              status: "Login Success",
+              data: { token, status: "Login Success", username, ...data[0]},
             });
           } else {
             return res.json({ Error: "Password not matched" });
