@@ -27,7 +27,7 @@ export default {
   },
   animatableContent: {
     backgroundColor: '#277FEE',
-    height: '59%',
+    height: '69%',
     borderTopLeftRadius: moderateScale(20),
     borderTopRightRadius: moderateScale(20),
     paddingHorizontal: moderateScale(20),
@@ -80,9 +80,9 @@ export default {
     fontFamily: 'Gotham SSm Light',
   },
   eyeIcon:{
-    marginLeft: moderateScale(120),
+    marginLeft: moderateScale(70),
   },
   confirmEyeIcon:{
-   marginLeft: moderateScale(107),
+   marginLeft: moderateScale(50),
   }
 };

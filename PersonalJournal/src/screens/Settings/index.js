@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, Card, Title } from 'react-native-paper';
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import { addUser, addJournal} from "../../redux/actions";
 
-const SettingsScreen = () => {
+const SettingsScreen = ({user}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    console.log(user)
+    if (user && user.username) {
+      setUsername(user.username);
+      setPassword(user.password);
+    }
+  }, [user]);
 
   const updateUser = () => {
     // Update user information
@@ -61,4 +72,19 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SettingsScreen;
+const mapStateToProps = (state) => {
+  return {
+    user: state.appState.user
+  };
+};
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      addUser,
+      // addJournal
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps) (SettingsScreen);

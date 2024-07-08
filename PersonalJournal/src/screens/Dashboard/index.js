@@ -6,10 +6,11 @@ import LottieView from "lottie-react-native";
 import changeSVGColor from "@killerwink/lottie-react-native-color";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { addUser } from "../../redux/actions";
+import { addUser, addJournal} from "../../redux/actions";
 import Loader from "../../assets/animetions/loading.json"
 import { moderateScale } from "react-native-size-matters";
 import backgroundImage from "../../assets/images/backgroundImage.png"
+import { useFocusEffect } from '@react-navigation/native';
 import NetInfo from "@react-native-community/netinfo";
 const SCRIPTS = require("../../utilities/network");
 
@@ -36,16 +37,21 @@ const time = () => {
   }
 };
 
-const Dashboard = ({ user, navigation }) => {
+const Dashboard = ({ user, navigation, props }) => {
   const [selectedDay, setSelectedDay] = useState(null);
-  const [jounrnalList, setJournalList] = useState('');
+  const [journalList, setJournalList] = useState('');
   const [loading, setLoading] = useState(false);
 
   const networkModalRef = useRef(null);
 
-   useEffect(() => {
-     dashboardAction();
-  }, []);
+  //  useEffect(() => {
+  //    dashboardAction();
+  // }, []);
+   useFocusEffect(
+    React.useCallback(() => {
+      dashboardAction();
+    }, [])
+  );
 
   const dashboardAction = () => {
     let endpoint = SCRIPTS.API_JOURNAL_LIST;
@@ -77,12 +83,34 @@ const Dashboard = ({ user, navigation }) => {
     navigation.navigate('EditJournal', { mode: 'add' });
   };
 
-  const editEntry = (entry) => {
+  const editEntry = (entry) => {API_UPDATE
     navigation.navigate('EditJournal', { mode: 'edit', entry });
   };
 
-  const deleteEntry = (entry) => {
-    // Handle entry deletion
+  const deleteEntry = (entryId) => {
+    let endpoint = `${SCRIPTS.API_JOURNAL_DELETE}/${entryId}`;
+    NetInfo.fetch().then((state) => {
+      if (!state.isConnected) {
+        setLoading(false);
+        networkModalRef.current?.showDialog();
+      } else {
+        setLoading(true);
+        SCRIPTS.callDelete(endpoint, "", "")
+          .then((response) => {
+           console.log('response', response )
+            return response.data;
+          })
+          .then((responseJson) => {
+            const data = responseJson
+            setLoading(false);
+            dashboardAction()
+          })
+          .catch((error) => {
+            console.log("DeleteError", error);
+            setLoading(false);
+          });
+      }
+    });
   };
 
   const filterEntriesByDay = (entries, day) => {
@@ -93,7 +121,7 @@ const Dashboard = ({ user, navigation }) => {
     });
   };
 
-  const filteredData = filterEntriesByDay(jounrnalList, selectedDay);
+  const filteredData = filterEntriesByDay(journalList, selectedDay);
 
   const resetFilter = () => {
     setSelectedDay(null);
@@ -104,10 +132,16 @@ const Dashboard = ({ user, navigation }) => {
       <View>
         <Text style={styles.greeting}>{time()} {user?.username}</Text>
       </View>
-      <FlatList
+      <View style={
+              {
+                height:moderateScale(60)
+              }
+            }>
+        <FlatList
         horizontal
         data={daysOfWeek}
         keyExtractor={(item, index) => index.toString()}
+        
         renderItem={({ item, index }) => (
           <TouchableOpacity onPress={() => setSelectedDay(index)}>
             <View style={[
@@ -128,6 +162,8 @@ const Dashboard = ({ user, navigation }) => {
         )}
         style={styles.daysList}
       />
+      </View>
+      
 
       {selectedDay !== null && (
         <Button mode="contained" onPress={resetFilter} style={styles.resetButton}>
@@ -135,7 +171,8 @@ const Dashboard = ({ user, navigation }) => {
         </Button>
       )}
       {
-       jounrnalList.length > 0 && loading && <View
+       journalList.length > 0 && loading && 
+       <View
             style={[
               {
                 justifyContent: "center",
@@ -163,7 +200,7 @@ const Dashboard = ({ user, navigation }) => {
               data={filteredData.data}
               keyExtractor={(item) => item.id.toString()}
               onRefresh={() => {
-                    dashboardAction();
+                dashboardAction();
               }}
               refreshing={loading}
               renderItem={({ item }) => (
@@ -171,7 +208,10 @@ const Dashboard = ({ user, navigation }) => {
                   <Card.Content>
                     <View style={styles.cardHeader}>
                       <Text style={styles.title}>{item.title}</Text>
-                      <IconButton icon="pencil" size={20} onPress={() => editEntry(item)} />
+                      <View style={{ flexDirection: 'row' }}>
+                        <IconButton icon="pencil" size={20} color={secondary} onPress={() => editEntry(item)} />
+                        <IconButton icon="delete" size={20} color="red" onPress={() => deleteEntry(item.id)} />
+                  </View>
                     </View>
                     <View style={styles.categoryDate}>
                       <Text style={styles.category}>{item.category}</Text>
@@ -256,6 +296,7 @@ const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       addUser,
+      // addJournal
     },
     dispatch
   );

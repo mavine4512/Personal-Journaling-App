@@ -81,6 +81,6 @@ export default {
   },
   eyeIcon: {
     padding: moderateScale(5),
-    marginLeft: moderateScale(120),
+    marginLeft: moderateScale(70),
   },
 };

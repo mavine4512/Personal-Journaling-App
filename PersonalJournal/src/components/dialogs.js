@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import changeSVGColor from "@killerwink/lottie-react-native-color";
@@ -394,6 +395,109 @@ export class LogoutPrompt extends React.Component {
                   <Text style={styles.btnText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </SafeAreaView>
+        </Animatable.View>
+      </Modal>
+    );
+  }
+}
+
+export class ListCategory extends React.Component {
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.onSelect(this.props.category);
+        }}
+        style={styles.containerList}>
+        <Text style={styles.textList}>{this.props.text}</Text>
+        {this.props.selected && (
+          <Icon
+            name={'ios-checkmark'}
+            size={moderateScale(22)}
+            type={'Ionicons'}
+            color={primary}
+            style={styles.endList}
+          />
+        )}
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class CategoryModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+    };
+  }
+
+  _dismiss = () => {
+    this.setState({visible: false});
+  };
+  _show = () => {
+    this.setState({visible: true});
+  };
+
+  render() {
+    return (
+      <Modal visible={this.state.visible} transparent>
+        <Animatable.View
+          style={styles.container}
+          animation={'zoomInDown'}
+          duration={500}>
+          <SafeAreaView style={{flex: 1}}>
+            <View>
+              <Icon
+                name={'close'}
+                onPress={() => this._dismiss()}
+                type={'AntDesign'}
+                color={primary}
+                size={22}
+                style={{
+                  margin: moderateScale(20),
+                }}
+              />
+              <Text
+                style={{
+                  marginHorizontal: moderateScale(20),
+                  alignSelf: 'center',
+                  fontSize: moderateScale(16),
+                  fontFamily: 'Gotham SSm Book',
+                }}>
+                Select category
+              </Text>
+              <ScrollView>
+                <ListCategory
+                  text={'Personal'}
+                  selected={this.props.category == 1}
+                  category={1}
+                  onSelect={category => {
+                    this.props.onSelect(category, 'Personal');
+                    this._dismiss();
+                  }}
+                />
+                <ListCategory
+                  text={'Work'}
+                  selected={this.props.category == 2}
+                  category={2}
+                  onSelect={category => {
+                    this.props.onSelect(category, 'Work');
+                    this._dismiss();
+                  }}
+                />
+                <ListCategory
+                  text={'Travel'}
+                  selected={this.props.category == 3}
+                  category={3}
+                  onSelect={category => {
+                    this.props.onSelect(category, 'Travel');
+                    this._dismiss();
+                  }}
+                />
+              </ScrollView>
             </View>
           </SafeAreaView>
         </Animatable.View>

@@ -6,7 +6,10 @@ export const OS_VERSION = Platform.OS === "android" ? "1.0.1" : "1.0.1";
 
 export const API_REGISTER = "/register";
 export const API_LOGIN = "/login";
-export const API_JOURNAL_LIST = "/journals/list"
+export const API_JOURNAL_LIST = "/journals/list";
+export const API_ADDNEW = "/journal";
+export const API_UPDATE = "/update/journal/:id";
+export const API_JOURNAL_DELETE = "/delete/journal";
 export const API_LOGOUT = "/login/logout";
 export const API_DASHBOARD = "/dashboard/index";
 export const API_PROFILE = "/user/settings";
@@ -60,4 +63,8 @@ export const callGet = (url) => {
 
 export const callPost = (url, data, token) => {
   return networkConfig("post", url, data, token);
+};
+
+export const callDelete = (url) => {
+  return networkConfig('delete', url);
 };

@@ -4,6 +4,12 @@ export function addUser(user) {
     payload: user,
   };
 }
+export function addJournal(journal){
+  return { 
+    type: "ADD_JOURNAL",
+   payload:journal
+  }
+}
 
 export function updateProfile(profile) {
   return {
