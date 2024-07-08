@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     top: Platform.OS === "android" ? 0 : 15,
   },
   btnText: {
-    color: white,
+     color: primary,
     fontFamily: "Gotham SSm Medium",
     fontSize: moderateScale(12),
     alignSelf: "center",

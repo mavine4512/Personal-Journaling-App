@@ -15,9 +15,15 @@ Developed a mobile application for personal journaling using React Native and Ty
 
 ### Technologies Used:
 
-- **Frontend:**  React Native, TypeScript, React Navigation, Axios
+- **Frontend:**  React Native, React Navigation, Axios
 - **Backend:** Express.js, MySQL
 - **Security:** JSON Web Tokens (JWT), bcrypt
 - **Development Tools:** React Native CLI
 
 ### Folder Structure
+
+### Running the application
+run this on terminal
+
+windows: `ipconfig`
+macOS: `ifconfig`

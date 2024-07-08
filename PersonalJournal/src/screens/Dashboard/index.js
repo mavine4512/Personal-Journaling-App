@@ -1,45 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState,  useEffect, useRef} from 'react';
+import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import { Card, IconButton, Button } from 'react-native-paper';
 import { secondary, primary, Gray } from "../../utilities/color";
-
-const data = [
-  {
-    id: 1,
-    title: "Introduction to React",
-    content: "React is a popular JavaScript library for building user interfaces...",
-    category: "Web Development",
-    date: "2024-07-06"
-  },
-  {
-    id: 2,
-    title: "Understanding Node.js",
-    content: "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine...",
-    category: "Backend Development",
-    date: "2024-06-30"
-  },
-  {
-    id: 3,
-    title: "Getting Started with HTML",
-    content: "HTML stands for Hyper Text Markup Language and is the standard markup language for creating web pages...",
-    category: "Web Design",
-    date: "2024-07-01"
-  },
-  {
-    id: 4,
-    title: "Mastering CSS",
-    content: "CSS is a language that describes the style of an HTML document...",
-    category: "Web Design",
-    date: "2024-07-02"
-  },
-  {
-    id: 5,
-    title: "JavaScript Basics",
-    content: "JavaScript is a programming language that allows you to implement complex features on web pages...",
-    category: "Programming",
-    date: "2024-07-03"
-  }
-];
+import LottieView from "lottie-react-native";
+import changeSVGColor from "@killerwink/lottie-react-native-color";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import { addUser } from "../../redux/actions";
+import Loader from "../../assets/animetions/loading.json"
+import { moderateScale } from "react-native-size-matters";
+import backgroundImage from "../../assets/images/backgroundImage.png"
+import NetInfo from "@react-native-community/netinfo";
+const SCRIPTS = require("../../utilities/network");
 
 const daysOfWeek = [
   { day: "Sun", color: "#FFCDD2" },
@@ -64,8 +36,42 @@ const time = () => {
   }
 };
 
-const JournalScreen = ({ navigation }) => {
+const Dashboard = ({ user, navigation }) => {
   const [selectedDay, setSelectedDay] = useState(null);
+  const [jounrnalList, setJournalList] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const networkModalRef = useRef(null);
+
+   useEffect(() => {
+     dashboardAction();
+  }, []);
+
+  const dashboardAction = () => {
+    let endpoint = SCRIPTS.API_JOURNAL_LIST;
+    
+    NetInfo.fetch().then((state) => {
+      if (!state.isConnected) {
+        setLoading(false);
+        networkModalRef.current?.showDialog();
+      } else {
+        setLoading(true);
+        SCRIPTS.callGet(endpoint, "", "")
+          .then((response) => {
+            return response.data;
+          })
+          .then((responseJson) => {
+            const data = responseJson
+            setLoading(false);
+            setJournalList({data})
+          })
+          .catch((error) => {
+            console.log("NetworkError", error);
+            setLoading(false);
+          });
+      }
+    });
+  };
 
   const addEntry = () => {
     navigation.navigate('EditJournal', { mode: 'add' });
@@ -87,7 +93,7 @@ const JournalScreen = ({ navigation }) => {
     });
   };
 
-  const filteredData = filterEntriesByDay(data, selectedDay);
+  const filteredData = filterEntriesByDay(jounrnalList, selectedDay);
 
   const resetFilter = () => {
     setSelectedDay(null);
@@ -96,7 +102,7 @@ const JournalScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View>
-        <Text style={styles.greeting}>{time()} Andrew</Text>
+        <Text style={styles.greeting}>{time()} {user?.username}</Text>
       </View>
       <FlatList
         horizontal
@@ -109,10 +115,12 @@ const JournalScreen = ({ navigation }) => {
               { backgroundColor: item.color },
               selectedDay === index && styles.selectedDayCircle
             ]}>
-              <Text style={[
+              <Text 
+              style={[
                 styles.day,
                 selectedDay === index && styles.selectedDayText
-              ]}>
+              ]}
+              >
                 {item.day}
               </Text>
             </View>
@@ -120,30 +128,66 @@ const JournalScreen = ({ navigation }) => {
         )}
         style={styles.daysList}
       />
+
       {selectedDay !== null && (
         <Button mode="contained" onPress={resetFilter} style={styles.resetButton}>
           Reset Filter
         </Button>
       )}
-      <FlatList
-        data={filteredData}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Card style={styles.card}>
-            <Card.Content>
-              <View style={styles.cardHeader}>
-                <Text style={styles.title}>{item.title}</Text>
-                <IconButton icon="pencil" size={20} onPress={() => editEntry(item)} />
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.category}>{item.category}</Text>
-                <Text style={styles.date}>{item.date}</Text>
-              </View>
-              <Text style={styles.content}>{item.content}</Text>
-            </Card.Content>
-          </Card>
-        )}
-      />
+      {
+       jounrnalList.length > 0 && loading && <View
+            style={[
+              {
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: "50%",
+              },
+            ]}
+          >
+            <LottieView
+              source={changeSVGColor(Loader, primary)}
+              autoPlay={true}
+              speed={5}
+              style={{
+                width: moderateScale(150),
+                color: primary,
+                height: moderateScale(150),
+              }}
+            />
+      </View>
+      }
+
+      {
+        // jounrnalList.data.length > 0 ? 
+          <FlatList
+              data={filteredData.data}
+              keyExtractor={(item) => item.id.toString()}
+              onRefresh={() => {
+                    dashboardAction();
+              }}
+              refreshing={loading}
+              renderItem={({ item }) => (
+                <Card style={styles.card}>
+                  <Card.Content>
+                    <View style={styles.cardHeader}>
+                      <Text style={styles.title}>{item.title}</Text>
+                      <IconButton icon="pencil" size={20} onPress={() => editEntry(item)} />
+                    </View>
+                    <View style={styles.categoryDate}>
+                      <Text style={styles.category}>{item.category}</Text>
+                      <Text style={styles.date}>{item.date}</Text>
+                    </View>
+                    <Text style={styles.content}>{item.content}</Text>
+                  </Card.Content>
+                </Card>
+              )}
+         />
+      //  : <View style={styles.backgroundImgView}>
+      //       <Image  style={styles.backgroundImg} source={backgroundImage} />
+      //       <Text style={[styles.category,{marginVertical: 20, fontSize: 20}]}>No Journal yet create on by clicking the button Add New entry</Text>
+      //     </View>
+      }
+     
       <Button mode="contained" onPress={addEntry} style={styles.addButton}>
         Add New Entry
       </Button>
@@ -152,16 +196,20 @@ const JournalScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
-  greeting: { fontSize: 15, fontWeight: 'bold', marginBottom: 10, color: primary },
-  daysList: { marginBottom: 8, height: 65, paddingVertical: 3 },
+  container: { flex: 1, padding: moderateScale(16), backgroundColor: '#f5f5f5' },
+  greeting: { fontSize: moderateScale(15), fontWeight: 'bold', marginBottom: 10, color: primary },
+  daysList: { 
+    marginBottom: moderateScale(8), 
+    height: moderateScale(10), 
+    paddingVertical: 3 , 
+  },
   dayCircle: {
     width: 40,
     height: 40,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 8
+    marginHorizontal: 8,
   },
   selectedDayCircle: {
     borderWidth: 1,
@@ -182,11 +230,34 @@ const styles = StyleSheet.create({
   card: { marginBottom: 10, backgroundColor: 'white' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 18, fontWeight: 'bold', color: secondary },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  category: { fontSize: 14, color: Gray },
-  date: { fontSize: 12, color: Gray },
-  content: { fontSize: 14, marginTop: 8 },
-  addButton: { marginTop: 16 }
+  categoryDate: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4},
+  category: { fontSize: 14, color: primary },
+  date: { fontSize: 12, color: primary },
+  content: { fontSize: 14, marginTop: 8, color: primary },
+  addButton: { marginTop: 16 },
+  backgroundImgView:{
+     alignItems: "center",
+    justifyContent: "center",
+    marginBottom: moderateScale(50)
+  },
+  backgroundImg:{
+     height: moderateScale(300),
+     width: moderateScale(300),
+  }
 });
 
-export default JournalScreen;
+const mapStateToProps = (state) => {
+  return {
+    user: state.appState.user
+  };
+};
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      addUser,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
