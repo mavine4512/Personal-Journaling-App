@@ -79,4 +79,10 @@ export default {
     fontSize: moderateScale(16),
     fontFamily: 'Gotham SSm Light',
   },
+  eyeIcon:{
+    marginLeft: moderateScale(120),
+  },
+  confirmEyeIcon:{
+   marginLeft: moderateScale(107),
+  }
 };

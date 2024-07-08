@@ -23,7 +23,7 @@ export default {
     fontWeight: "500",
     color: white,
     marginVertical: moderateScale(20),
-    margingLeft: moderateScale(10),
+    marginLeft: moderateScale(10),
   },
   animatableContent: {
     backgroundColor: '#277FEE',
@@ -78,5 +78,9 @@ export default {
     color: '#06b7cc',
     fontSize: moderateScale(16),
     fontFamily: 'Gotham SSm Light',
+  },
+  eyeIcon: {
+    padding: moderateScale(5),
+    marginLeft: moderateScale(120),
   },
 };

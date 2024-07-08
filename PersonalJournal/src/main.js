@@ -25,13 +25,6 @@ class Main extends React.Component {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="Dashboard"
-            component={Tabs}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
             name="Login"
             component={Login}
             options={{ headerShown: false }}
@@ -43,7 +36,13 @@ class Main extends React.Component {
               headerShown: false,
             }}
           />
-           
+           <Stack.Screen
+            name="Dashboard"
+            component={Tabs}
+            options={{
+              headerShown: false,
+            }}
+          />
           <Stack.Screen
             name="EditJournal"
             component={EditJournal}

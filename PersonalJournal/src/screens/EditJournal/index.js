@@ -2,22 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Card, Title } from 'react-native-paper';
 import { primary, secondary } from "../../utilities/color";
+import NetInfo from "@react-native-community/netinfo";
+const SCRIPTS = require("../../utilities/network");
 
 const EditJournal = ({ route, navigation }) => {
   const { mode, entry } = route.params;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
-  const [date, setDate] = useState(new Date());
 
   useEffect(() => {
     if (mode === 'edit' && entry) {
       setTitle(entry.title);
       setContent(entry.content);
       setCategory(entry.category);
-      setDate(new Date(entry.date));
     }
   }, [mode, entry]);
+
+  const AddAction = () => {
+    let endpoint = SCRIPTS.API_ADDNEW;
+    const data = {
+      title: title,
+      content: content,
+      category:category
+    };
+    
+    NetInfo.fetch().then((state) => {
+      if (!state.isConnected) {
+        setLoading(false);
+        networkModalRef.current?.showDialog();
+      } else {
+        setLoading(true);
+        SCRIPTS.callPost(endpoint, data, "")
+          .then((response) => {
+            return response.data;
+          })
+          .then((responseJson) => {
+            const data = responseJson
+            setLoading(false);
+            setJournalList({data})
+          })
+          .catch((error) => {
+            console.log("NetworkError", error);
+            setLoading(false);
+          });
+      }
+    });
+  };
+
 
   const saveEntry = () => {
     if (mode === 'add') {
@@ -66,7 +98,7 @@ const EditJournal = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5',justifyContent: 'center', },
   card: { margin: 16, backgroundColor: 'white', borderRadius: 10, elevation: 3 },
   header: {
     fontSize: 22,

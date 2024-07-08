@@ -25,7 +25,8 @@ app.use(bodyParser.json());
 app.post('/',(req, res) => {
     console.log(req.body);
     res.send('Journal Backend server started');
-})
+});
+
 //create
 app.post('/journal', (req, res) => {
   const { title, content, category } = req.body;
@@ -106,7 +107,7 @@ app.put('/update/journal/:id', (req, res) => {
 // POST API for register
 app.post("/register", (req, res) => {
   const { username, password } = req.body;
-
+console.log('data', username, password);
   // Check if the username already exists
   const checkUserSql = "SELECT * FROM login WHERE username = ?";
   db.query(checkUserSql, [username], (err, result) => {

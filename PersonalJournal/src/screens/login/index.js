@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -16,75 +16,119 @@ import {
   NetworkLostDialog,
   SuccessDialog,
 } from "../../components/dialogs";
-// import { AuthContext } from "../../components/context";
 import styles from "./styles";
 import Icon from "../../components/icon";
 import LoginImg from "../../assets/images/login.png";
-import { white,black } from "../../utilities/color";
+import { white, black, secondary } from "../../utilities/color";
 import { moderateScale } from "react-native-size-matters";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { addUser } from "../../redux/actions";
 import { useNavigation, CommonActions } from "@react-navigation/native";
+import { storeLocalStorage } from "../../localData/localData";
+import NetInfo from "@react-native-community/netinfo";
+const SCRIPTS = require("../../utilities/network");
 
-
-const Login = ({ addUser }) => {
+const Login = (props) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [secureTextEntry, setSecureTextEntry] = useState(true);
 
   const navigation = useNavigation();
 
-  // const LoginAction = () => {
-  //   fetch("https://dummyjson.com/auth/login", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       username: username,
-  //       password: password,
-  //       // expiresInMins: 60, // optional
-  //     }),
-  //   })
-  //     .then((res) => res.json())
-  //     .then((res) => {
-  //       console.log("res", res);
-  //       // navigation.navigate("Dashboard", { screen: "Dashboard" });
-  //       saveUser(res);
-  //       addUser(res);
-  //       setPassword("");
-  //       setUsername("");
-  //     })
-  //     .catch((error) => {
-  //       console.log("error", error);
-  //     });
-  // };
+  const networkModalRef = useRef(null);
+  const errorDialogRef = useRef(null);
+  const successDialogRef = useRef(null);
 
-  // const saveUser = async (user) => {
-  //   try {
-  //     // storeLocalStorage("user", user);
-  //     console.log("User data saved successfully!");
-  //   } catch (error) {
-  //     console.log("Error saving user data:", error);
-  //   }
-  // };
+  const LoginAction = () => {
+    let endpoint = SCRIPTS.API_LOGIN;
+    const data = {
+      username: username,
+      password: password,
+    };
+    NetInfo.fetch().then((state) => {
+      if (!state.isConnected) {
+        setLoading(false);
+        networkModalRef.current?.showDialog();
+      } else {
+        setLoading(true);
+        SCRIPTS.callPost(endpoint, data, "")
+          .then((response) => {
+            return response.data;
+          })
+          .then((responseJson) => {
+            userLogin(responseJson);
+          })
+          .catch((error) => {
+            console.log("NetworkError", error);
+            setLoading(false);
+          });
+      }
+    });
+  };
 
-  // const handleLogin = () => {
-  //   // Check if email is valid
-  //   if (username === "") {
-  //     Alert.alert("Invalid user name", "Please enter a valid user name.");
-  //     return;
-  //   }
+  const userLogin = (responseJson) => {
+    let user = responseJson;
+    const userData = user.data
+    if (user.error) {
+      errorDialogRef.current?.showDialog("Log In Error", user.error);
+    } 
+    
+    if (userData){
+      successDialogRef.current?.showDialog(userData.status, () =>{
+        _redirect("Dashboard");
+      });
 
-  //   // Check if password is valid
-  //   if (!password || password.length < 6) {
-  //     Alert.alert(
-  //       "Invalid Password",
-  //       "Password must be at least 6 characters long."
-  //     );
-  //     return;
-  //   }
-  //   LoginAction();
-  // };
+    console.log("Login was Success", userData);
+
+    // Ensure props.addUser is defined and available
+    if (props && props.addUser) {
+      props.addUser(userData);
+      saveUser(userData);
+    } else {
+      console.error("addUser function is not available in props.");
+    }
+     setPassword("");
+    setUsername(""); 
+    }
+  };
+
+  _redirect=(page)=>{
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: page }],
+      })
+    );
+  }
+
+   const saveUser = async (user) => {
+    try {
+      // setToken(user.access_token);
+      setLoading(false);
+      storeLocalStorage("user", user);
+    } catch (e) {
+      console.error("Error saving user:", e);
+    }
+  };
+
+  const handleLogin = () => {
+    // Check if user name is valid
+    if (username === "") {
+      Alert.alert("Invalid user name", "Please enter a valid user name.");
+      return;
+    }
+    // Check if password is valid
+    if (!password || password.length < 6) {
+      Alert.alert(
+        "Invalid Password",
+        "Password must be at least 6 characters long."
+      );
+      return;
+    }
+    LoginAction();
+  };
 
   return (
     <SafeAreaView style={styles.loginContainer}>
@@ -95,10 +139,10 @@ const Login = ({ addUser }) => {
         backgroundColor={"transparent"}
       />
       <View>
-        <NetworkLostDialog ref={(ref) => (this.networkmodal = ref)} />
-        <ErrorDialog ref={(ref) => (this.errordialog = ref)} />
-        <SuccessDialog ref={(ref) => (this.successDialog = ref)} />
-        <View style={{ alignItems: "center",marginTop:'7%', marginBottom: moderateScale(30) }}>
+        <NetworkLostDialog ref={networkModalRef} />
+        <ErrorDialog ref={errorDialogRef} />
+        <SuccessDialog ref={successDialogRef} />
+        <View style={{ alignItems: "center",marginTop:'7%', marginBottom: moderateScale(40) }}>
           <Image style={styles.loginimg} source={LoginImg} />
           <Text style={styles.welcomeText}>Welcome Back</Text>
         </View>
@@ -119,7 +163,7 @@ const Login = ({ addUser }) => {
                 style={styles.icons}
               />
               <TextInput
-                // onChangeText={(text) => setUsername(text)}
+                onChangeText={(text) => setUsername(text)}
                 value={username}
                 style={styles.TextItems}
                 placeholder="Enter your user name"
@@ -135,17 +179,27 @@ const Login = ({ addUser }) => {
                 style={styles.icons}
               />
               <TextInput
-                // onChangeText={(text) => setPassword(text)}
+                onChangeText={(text) => setPassword(text)}
                 value={password}
-                secureTextEntry={true}
+                secureTextEntry={secureTextEntry}
                 style={styles.TextItems}
                 placeholder="Enter your password"
                 placeholderTextColor={white}
               />
+              <TouchableOpacity
+                onPress={() => setSecureTextEntry(!secureTextEntry)}
+                style={styles.eyeIcon}
+              >
+                <Icon
+                  name={secureTextEntry ? "eye-with-line" : "eye"}
+                  type={"Entypo"}
+                  size={20}
+                  color={white}
+                />
+              </TouchableOpacity>
             </View>
             <View style={{ marginTop: moderateScale(30) }}>
-              <Button title="Login" 
-              // onPress={handleLogin} 
+              <Button title="Login" onPress={handleLogin} 
               />
             </View>
             <View style={styles.viewContainerText}>
@@ -176,9 +230,6 @@ const mapStateToProps = (state) => {
   const { appState } = state;
   return {
     appState,
-    isPortrait: appState.isPortrait,
-    deviceDimension: appState.deviceDimension,
-    width: appState.deviceDimension.width,
   };
 };
 
