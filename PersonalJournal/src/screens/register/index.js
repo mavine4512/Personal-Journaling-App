@@ -124,7 +124,7 @@ const Register = () => {
         <NetworkLostDialog ref={networkModalRef} />
         <ErrorDialog ref={errorDialogRef} />
         <SuccessDialog ref={successDialogRef} />
-        <View style={{ alignItems: "center", marginTop: '7%', marginBottom: moderateScale(40) }}>
+        <View style={{ alignItems: "center" }}>
           <Image style={styles.loginimg} source={SignUp} resizeMode={'contain'} />
           <Text style={styles.welcomeText}>Hello Register?</Text>
         </View>

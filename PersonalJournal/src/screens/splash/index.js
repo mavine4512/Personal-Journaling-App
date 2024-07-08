@@ -32,7 +32,6 @@ class Splash extends React.Component {
       if (user) {
         user = JSON.parse(user);
         this.props.addUser(user);
-
         //redirect to home screen
         this.setState(
           {

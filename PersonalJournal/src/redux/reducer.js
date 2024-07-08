@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const INITIAL_STATE = {
   user: null,
+  journal:null,
   profile: null,
 };
 
@@ -13,6 +14,8 @@ function appReducer(state = INITIAL_STATE, action) {
       return { ...state, profile: action.payload };
     case "ADD_USER":
       return { ...state, user: action.payload };
+     case "ADD_JOURNAL":
+      return { ...state, journal: action.payload };
     default:
       return state;
   }

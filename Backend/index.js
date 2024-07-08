@@ -30,6 +30,7 @@ app.post('/',(req, res) => {
 //create
 app.post('/journal', (req, res) => {
   const { title, content, category } = req.body;
+  console.log('data',)
   
   const query = 'INSERT INTO journal_list (title, content, category) VALUES (?, ?, ?)';
   const values = [title, content, category];
