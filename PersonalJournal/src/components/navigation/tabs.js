@@ -30,7 +30,7 @@ function Tabs() {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Summary"
         component={Summary}
         options={{
@@ -43,7 +43,7 @@ function Tabs() {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Settings"
         component={Settings}
