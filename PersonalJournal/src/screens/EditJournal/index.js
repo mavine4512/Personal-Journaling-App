@@ -27,6 +27,7 @@ const EditJournal = ({ route, navigation }) => {
       setTitle(entry.title);
       setContent(entry.content);
       setCategory(entry.category);
+      setCategoryName(entry.category)
     }
   }, [mode, entry]);
 
@@ -59,7 +60,7 @@ const EditJournal = ({ route, navigation }) => {
   };
 
   const UpdateAction = () =>{
-  //  let endpoint = `${SCRIPTS.API_UPDATE}/${entryId}`;
+   let endpoint = `${SCRIPTS.API_UPDATE}/${entry.id}`;
     const data = {
       title: title,
       content: content,

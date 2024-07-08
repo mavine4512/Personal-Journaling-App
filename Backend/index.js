@@ -85,6 +85,7 @@ app.delete('/delete/journal/:id', (req, res) => {
 app.put('/update/journal/:id', (req, res) => {
   // http://127.0.0.1:3000/update/journal/1 (call this in frontend)
   const { id } = req.params;
+  console.log('id',id);
   const { title, content, category, cdate } = req.body;
 
   const query = 'UPDATE journal_list SET title = ?, content = ?, category = ?, cdate = ? WHERE id = ?';
