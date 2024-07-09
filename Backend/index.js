@@ -60,6 +60,48 @@ app.get('/journals/list', (req, res) => {
   });
 });
 
+// Endpoint to get summarized journal entries
+app.get('/journals/summary', (req, res) => {
+  const { period } = req.query;
+
+  let query;
+  switch (period) {
+    case 'daily':
+      query = `
+        SELECT title, content, category, DATE(cdate) as cdate
+        FROM journal_list
+        ORDER BY DATE(cdate) DESC
+      `;
+      break;
+    case 'weekly':
+      query = `
+        SELECT title, content, category, YEARWEEK(cdate) as cdate
+        FROM journal_list
+        ORDER BY YEARWEEK(cdate) DESC
+      `;
+      break;
+    case 'monthly':
+      query = `
+        SELECT title, content, category, DATE_FORMAT(cdate, '%Y-%m') as cdate
+        FROM journal_list
+        ORDER BY DATE_FORMAT(cdate, '%Y-%m') DESC
+      `;
+      break;
+    default:
+      res.status(400).send('Invalid period');
+      return;
+  }
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching summary data:', err);
+      res.status(500).send('Error fetching summary data');
+      return;
+    }
+    res.json(results);
+  });
+});
+
 // Endpoint to delete a journal entry
 app.delete('/delete/journal/:id', (req, res) => {
   // http://127.0.0.1:3000/delete/journal/1 (call this in frontend)
