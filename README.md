@@ -71,8 +71,9 @@ Connected to the MySQL database
 ├── index.html
 ├── journal_db.sql
 └──package.json
-
 ```
+
+### More Installation: 
 * How to connect to the backend from frontend
  - After you have started the backend `yarn start` you will need to connect both emulator, or if you are using real device you will need to use the same net work to connect.
  - You need to be on the same IP address.
@@ -93,6 +94,7 @@ Connected to the MySQL database
                     status: active
                 ```
     -  Take the Ip address you have found put in at `utilities/baseURl.js`:  export  const BaseUrl = "http://192.192.0.0:3000"
+
 ## FrontEnd Folder Structure 
 
 ```plaintext
@@ -170,12 +172,27 @@ Connected to the MySQL database
 └── README.md
 ```
 
-### Installation
-run this on terminal
+- `src/`: Contains all the source code for the React application.
+  - `components/`: Contains React components used to build the application.
+  - `screen`: Contains all the application screen.
+  - `utilities/`: Contains all reusable files used to build the application
+     - `baseUrl`: Contains the base URL
+     - `network/`: Contains functions to interact with the backend API's.
+- `tests/`: Contains unit tests.
+- `package.json`: Defines project dependencies and scripts.
+- `README.md`: Documentation for the project.
 
 ## Author
 
 - [Mavine Naaman](https://github.com/mavine4512)
 
 ## App Images
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/login.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/register.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/home.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/profileSetting.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/addNewEntry.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/editEntry.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/summary.png?raw=true)
+![alt text](https://github.com/mavine4512/Personal-Journaling-App/blob/main/PersonalJournal/src/assets/appUIImages/summaryDropDown.png?raw=true)
 
