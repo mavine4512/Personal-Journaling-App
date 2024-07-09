@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, FlatList, TouchableOpacity,StyleSheet } from 'react-native';
 import { Card, IconButton, Button } from 'react-native-paper';
 import { secondary, primary, Gray } from "../../utilities/color";
 import LottieView from "lottie-react-native";
 import changeSVGColor from "@killerwink/lottie-react-native-color";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { addUser, addJournal } from "../../redux/actions";
+import { addUser} from "../../redux/actions";
 import Loader from "../../assets/animetions/loading.json";
 import { moderateScale } from "react-native-size-matters";
-import backgroundImage from "../../assets/images/backgroundImage.png";
 import { useFocusEffect } from '@react-navigation/native';
 import NetInfo from "@react-native-community/netinfo";
 const SCRIPTS = require("../../utilities/network");

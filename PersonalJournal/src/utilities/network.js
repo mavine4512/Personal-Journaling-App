@@ -11,6 +11,7 @@ export const API_ADDNEW = "/journal";
 export const API_UPDATE = "/update/journal";
 export const API_JOURNAL_DELETE = "/delete/journal";
 export const API_PROFILE = "/user/settings";
+export const API_SUMMARY_DATA = "/journals/summary";
 
 function networkConfig(action, endpoint = "", data = {}, token = "") {
   const api = axios.create({
