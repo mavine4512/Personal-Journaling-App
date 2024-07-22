@@ -20,7 +20,6 @@ Developed a mobile application for personal journaling using React Native, allow
 - **Security:** JSON Web Tokens (JWT), bcrypt
 - **Development Tools:** React Native CLI.
 
-### Folder Structure
 
 ### Running the application
 

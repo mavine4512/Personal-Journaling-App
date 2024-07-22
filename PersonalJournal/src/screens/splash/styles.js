@@ -18,6 +18,6 @@ export default {
     fontWeight: "bold",
     color: Grey,
     marginVertical: moderateScale(20),
-    margingLeft: moderateScale(10),
+    marginLeft: moderateScale(10),
   },
 };

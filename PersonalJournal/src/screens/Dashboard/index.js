@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity,StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { Card, IconButton, Button } from 'react-native-paper';
-import { secondary, primary, Gray } from "../../utilities/color";
+import { secondary, primary } from "../../utilities/color";
 import LottieView from "lottie-react-native";
 import changeSVGColor from "@killerwink/lottie-react-native-color";
 import { bindActionCreators } from "redux";
+import styles from "./styles";
 import { connect } from "react-redux";
 import { addUser} from "../../redux/actions";
 import Loader from "../../assets/animetions/loading.json";
@@ -158,9 +159,8 @@ const Dashboard = ({ user, navigation, props }) => {
         </Button>
       )}
 
-     
 
-      {loading ? (
+      { loading ? (
         <View style={styles.loaderItem}>
           <LottieView
             source={changeSVGColor(Loader, primary)}
@@ -209,73 +209,6 @@ const Dashboard = ({ user, navigation, props }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: moderateScale(16), backgroundColor: '#f5f5f5' },
-  greeting: { fontSize: moderateScale(15), fontWeight: 'bold', marginBottom: 10, color: primary },
-  daysList: {
-    marginBottom: moderateScale(8),
-    height: moderateScale(10),
-    paddingVertical: 3,
-  },
-  dayCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 8,
-  },
-  selectedDayCircle: {
-    borderWidth: 1,
-    borderColor: primary
-  },
-  day: { fontSize: 16, color: 'white' },
-  selectedDayText: {
-    fontWeight: 'bold'
-  },
-  resetButton: {
-    marginVertical: 10,
-    alignSelf: 'center',
-    backgroundColor: secondary,
-    borderRadius: 15,
-    paddingHorizontal: 5,
-    paddingVertical: 2
-  },
-  card: { marginBottom: 10, backgroundColor: 'white' },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 18, fontWeight: 'bold', color: secondary },
-  categoryDate: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  category: { fontSize: 14, color: primary },
-  date: { fontSize: 12, color: primary },
-  content: { fontSize: 14, marginTop: 8, color: primary },
-  addButton: { marginTop: 16 },
-  backgroundImgView: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: moderateScale(50)
-  },
-  backgroundImg: {
-    height: moderateScale(300),
-    width: moderateScale(300),
-  },
-  emptyArray: {
-    justifyContent:'center', 
-    alignItems:'center',
-    marginTop:moderateScale(40)
-  },
-  emptyText:{
-  fontWeight: 'bold', 
-  fontSize: 16,
-  color:primary
-},
-loaderItem:{ 
-  justifyContent: "center", 
-  alignItems: "center", 
-  marginTop: "50%" 
-},
-
-});
 
 const mapStateToProps = (state) => {
   return {

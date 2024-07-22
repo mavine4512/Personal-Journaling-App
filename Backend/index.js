@@ -148,6 +148,47 @@ app.put('/update/journal/:id', (req, res) => {
   });
 });
 
+// Endpoint to update user information
+app.put('/updateUser', (req, res) => {
+  const token = req.headers['authorization'];
+  const { username, password } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied, no token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'jwt-secret-key');
+    const currentUsername = decoded.username;
+
+    // Fetch existing user data
+    const fetchUserSql = 'SELECT * FROM login WHERE username = ?';
+    db.query(fetchUserSql, [currentUsername], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Database error during user fetch' });
+
+      if (result.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Update user data
+      const updateUserSql = 'UPDATE login SET username = ?, password = ? WHERE username = ?';
+      bcrypt.hash(password.toString(), salt, (err, hash) => {
+        if (err) return res.status(500).json({ error: 'Error hashing password' });
+
+        const values = [username, hash, currentUsername];
+
+        db.query(updateUserSql, values, (err, result) => {
+          if (err) return res.status(500).json({ error: 'Updating data error in server' });
+          return res.json({ status: 'Success' });
+        });
+      });
+    });
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid token' });
+  }
+});
+
+
 // POST API for register
 app.post("/register", (req, res) => {
   const { username, password } = req.body;
