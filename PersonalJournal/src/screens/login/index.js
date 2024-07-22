@@ -19,7 +19,7 @@ import {
 import styles from "./styles";
 import Icon from "../../components/icon";
 import LoginImg from "../../assets/images/login.png";
-import { white, black, secondary } from "../../utilities/color";
+import { white, black } from "../../utilities/color";
 import { moderateScale } from "react-native-size-matters";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";

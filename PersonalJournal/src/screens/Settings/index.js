@@ -1,16 +1,21 @@
 import React, { useState, useEffect} from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, Alert} from 'react-native';
 import { TextInput, Button, Text, Card, Title } from 'react-native-paper';
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { addUser, addJournal} from "../../redux/actions";
+import { secondary } from "../../utilities/color";
+import styles from "./styles";
+import { addUser, updateProfile} from "../../redux/actions";
+import NetInfo from "@react-native-community/netinfo";
+const SCRIPTS = require("../../utilities/network");
 
-const SettingsScreen = ({user}) => {
+const SettingsScreen = ({user, updateProfile}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(user)
+    // console.log(user.password)
     if (user && user.username) {
       setUsername(user.username);
       setPassword(user.password);
@@ -18,11 +23,46 @@ const SettingsScreen = ({user}) => {
   }, [user]);
 
   const updateUser = () => {
-    // Update user information
+    const updatedProfile = { ...user, username, password };
+    const endpoint = SCRIPTS.API_PROFILE;
+
+    NetInfo.fetch().then((state) => {
+      if (!state.isConnected) {
+        Alert.alert("Error", "No internet connection");
+      } else {
+        setLoading(true);
+        console.log('endpoint', endpoint)
+        SCRIPTS.callUpdate(endpoint, updatedProfile, "")
+          .then((response) => response.data)
+          .then((responseJson) => {
+            setLoading(false);
+            if (responseJson && responseJson.status === 'Success') {
+              updateProfile(updatedProfile);
+              Alert.alert("Success", "User details updated successfully!");
+            } else {
+              Alert.alert("Error", "Failed to update user details");
+            }
+          })
+          .catch((error) => {
+            console.log("NetworkError", error);
+            setLoading(false);
+            Alert.alert("Error", "An error occurred while updating user details");
+          });
+      }
+    });
   };
 
   return (
     <View style={styles.container}>
+      {loading ?
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator
+          style={styles.activityIndicator}
+          size={'large'}
+          color={secondary}
+        />
+        <Text style={styles.profileLoading}>Updating Profile ...</Text>
+      </View> : 
       <Card style={styles.card}>
         <Card.Content>
           <Title style={styles.title}>Settings</Title>
@@ -45,32 +85,11 @@ const SettingsScreen = ({user}) => {
             Update
           </Button>
         </Card.Content>
-      </Card>
+      </Card>}
+      
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-  },
-  card: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
-  },
-  input: {
-    marginBottom: 16,
-  },
-  button: {
-    marginTop: 16,
-  },
-});
 
 const mapStateToProps = (state) => {
   return {
@@ -82,7 +101,7 @@ const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       addUser,
-      // addJournal
+     updateProfile
     },
     dispatch
   );
