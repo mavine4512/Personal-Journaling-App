@@ -1,4 +1,4 @@
-const express =  require('express');
+const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
@@ -22,16 +22,30 @@ db.connect((err) => {
 
 app.use(bodyParser.json());
 
-app.post('/',(req, res) => {
-    console.log(req.body);
-    res.send('Journal Backend server started');
+// JWT verification middleware
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied, no token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'jwt-secret-key');
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid token' });
+  }
+};
+
+app.post('/', (req, res) => {
+  console.log(req.body);
+  res.send('Journal Backend server started');
 });
 
-//create
-app.post('/journal', (req, res) => {
+// Create journal entry
+app.post('/journal', verifyToken, (req, res) => {
   const { title, content, category } = req.body;
-  console.log('data',)
-  
   const query = 'INSERT INTO journal_list (title, content, category) VALUES (?, ?, ?)';
   const values = [title, content, category];
 
@@ -47,7 +61,7 @@ app.post('/journal', (req, res) => {
 });
 
 // Endpoint to get all journal entries
-app.get('/journals/list', (req, res) => {
+app.get('/journals/list', verifyToken, (req, res) => {
   const query = 'SELECT * FROM journal_list';
 
   db.query(query, (err, results) => {
@@ -61,7 +75,7 @@ app.get('/journals/list', (req, res) => {
 });
 
 // Endpoint to get summarized journal entries
-app.get('/journals/summary', (req, res) => {
+app.get('/journals/summary', verifyToken, (req, res) => {
   const { period } = req.query;
 
   let query;
@@ -103,8 +117,7 @@ app.get('/journals/summary', (req, res) => {
 });
 
 // Endpoint to delete a journal entry
-app.delete('/delete/journal/:id', (req, res) => {
-  // http://127.0.0.1:3000/delete/journal/1 (call this in frontend)
+app.delete('/delete/journal/:id', verifyToken, (req, res) => {
   const { id } = req.params;
   const query = 'DELETE FROM journal_list WHERE id = ?';
   
@@ -124,10 +137,8 @@ app.delete('/delete/journal/:id', (req, res) => {
 });
 
 // Endpoint to update a journal entry
-app.put('/update/journal/:id', (req, res) => {
-  // http://127.0.0.1:3000/update/journal/1 (call this in frontend)
+app.put('/update/journal/:id', verifyToken, (req, res) => {
   const { id } = req.params;
-  console.log('id',id);
   const { title, content, category, cdate } = req.body;
 
   const query = 'UPDATE journal_list SET title = ?, content = ?, category = ?, cdate = ? WHERE id = ?';
@@ -149,69 +160,54 @@ app.put('/update/journal/:id', (req, res) => {
 });
 
 // Endpoint to update user information
-app.put('/updateUser', (req, res) => {
-  const token = req.headers['authorization'];
+app.put('/updateUser', verifyToken, (req, res) => {
   const { username, password } = req.body;
+  const currentUsername = req.user.username;
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access denied, no token provided.' });
-  }
+  const fetchUserSql = 'SELECT * FROM login WHERE username = ?';
+  db.query(fetchUserSql, [currentUsername], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error during user fetch' });
 
-  try {
-    const decoded = jwt.verify(token, 'jwt-secret-key');
-    const currentUsername = decoded.username;
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-    // Fetch existing user data
-    const fetchUserSql = 'SELECT * FROM login WHERE username = ?';
-    db.query(fetchUserSql, [currentUsername], (err, result) => {
-      if (err) return res.status(500).json({ error: 'Database error during user fetch' });
+    const updateUserSql = 'UPDATE login SET username = ?, password = ? WHERE username = ?';
+    bcrypt.hash(password.toString(), salt, (err, hash) => {
+      if (err) return res.status(500).json({ error: 'Error hashing password' });
 
-      if (result.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+      const values = [username, hash, currentUsername];
 
-      // Update user data
-      const updateUserSql = 'UPDATE login SET username = ?, password = ? WHERE username = ?';
-      bcrypt.hash(password.toString(), salt, (err, hash) => {
-        if (err) return res.status(500).json({ error: 'Error hashing password' });
-
-        const values = [username, hash, currentUsername];
-
-        db.query(updateUserSql, values, (err, result) => {
-          if (err) return res.status(500).json({ error: 'Updating data error in server' });
-          return res.json({ status: 'Success' });
-        });
+      db.query(updateUserSql, values, (err, result) => {
+        if (err) return res.status(500).json({ error: 'Updating data error in server' });
+        return res.json({ status: 'Success' });
       });
     });
-  } catch (err) {
-    return res.status(400).json({ error: 'Invalid token' });
-  }
+  });
 });
-
 
 // POST API for register
 app.post("/register", (req, res) => {
+  console.log('Request body:', req.body);
   const { username, password } = req.body;
-console.log('data', username, password);
-  // Check if the username already exists
+  console.log('Received registration data:', { username, password });
+ if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+
   const checkUserSql = "SELECT * FROM login WHERE username = ?";
   db.query(checkUserSql, [username], (err, result) => {
     if (err) return res.json({ error: "Database error during username check" });
 
     if (result.length > 0) {
-      // Username already exists
       return res.json({ error: "User has already been registered. Try another username." });
     }
 
-    // If username does not exist, proceed with registration
     const insertUserSql = "INSERT INTO login (`username`, `password`) VALUES (?)";
     bcrypt.hash(password.toString(), salt, (err, hash) => {
       if (err) return res.json({ error: "Error hashing password" });
 
-      const values = [
-        username,
-        hash,
-      ];
+      const values = [username, hash];
 
       db.query(insertUserSql, [values], (err, result) => {
         if (err) return res.json({ error: "Inserting data error in server" });
@@ -222,38 +218,40 @@ console.log('data', username, password);
 });
 
 
-//Post API for login
+
+// Post API for login
 app.post("/login", (req, res) => {
+   const { username, password } = req.body;
+
+  // Ensure username and password are provided
+  if (!username || !password) {
+    return res.status(400).json({ error: "Username and password are required." });
+  }
+  
   const sql = "SELECT * FROM login WHERE username = ?";
   db.query(sql, [req.body.username], (err, data) => {
+    // console.log('login', req.body)
     if (err) return res.json({ error: "Login error in server" });
     if (data.length > 0) {
-      bcrypt.compare(
-        req.body.password.toString(),
-        data[0].password,
-        (err, response) => {
-          if (err) return res.json({ error: "Password hash error" });
-          if (response) {
-            const username = data[0].username;
-            //jwt-secret-key will be chenged with real secret key
-            const token = jwt.sign({ username }, "jwt-secret-key", {
-              expiresIn: "1d",
-            });
-            res.cookie("token", token);
-            return res.json({
-              data: { token, status: "Login Success", username, ...data[0]},
-            });
-          } else {
-            return res.json({ Error: "Password not matched" });
-          }
+      bcrypt.compare(req.body.password.toString(), data[0].password, (err, response) => {
+        if (err) return res.json({ error: "Password hash error" });
+        if (response) {
+          const username = data[0].username;
+          const token = jwt.sign({ username }, "jwt-secret-key", { expiresIn: "1d" });
+          res.cookie("token", token);
+          return res.json({ data: { token, status: "Login Success", username, ...data[0] } });
+        } else {
+          return res.json({ error: "Password not matched" });
         }
-      );
+      });
     } else {
       return res.json({ error: "No user existed kindly register" });
     }
   });
 });
 
-app.listen(PORT,() => {
-    console.log('Server is running on port ' + PORT);
-})
+app.listen(PORT, () => {
+  console.log('Server is running on port ' + PORT);
+});
+
+
